@@ -47,7 +47,7 @@
 #include <boost/thread.hpp>
 
 #if defined(NDEBUG)
-# error "Litecoin cannot be compiled without assertions."
+# error "Centauri cannot be compiled without assertions."
 #endif
 
 /**
@@ -88,7 +88,7 @@ static void CheckBlockIndex(const Consensus::Params& consensusParams);
 /** Constant stuff for coinbase transactions we create: */
 CScript COINBASE_FLAGS;
 
-const std::string strMessageMagic = "Litecoin Signed Message:\n";
+const std::string strMessageMagic = "Centauri Signed Message:\n";
 
 // Internal stuff
 namespace {
@@ -980,7 +980,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
         // Remove conflicting transactions from the mempool
         BOOST_FOREACH(const CTxMemPool::txiter it, allConflicting)
         {
-            LogPrint("mempool", "replacing tx %s with %s for %s LTC additional fees, %d delta bytes\n",
+            LogPrint("mempool", "replacing tx %s with %s for %s CTX additional fees, %d delta bytes\n",
                     it->GetTx().GetHash().ToString(),
                     hash.ToString(),
                     FormatMoney(nModifiedFees - nConflictingFees),
@@ -1171,7 +1171,15 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
         return 0;
 
     CAmount nSubsidy = 50 * COIN;
-    // Subsidy is cut in half every 210,000 blocks which will occur approximately every 4 years.
+
+    // fast forward
+    // amount: 10 000 000 coins
+    // start: ~2018-Apr-21 11:00:00
+    // end: ~2018-Mai-21 11:00:00
+    // 1 month => 12280 blocks
+    if( nHeight > 380777 && nHeight < 380777+12280 ) nSubsidy = 818 * COIN;
+
+    // Subsidy is cut in half every 840,000 blocks which will occur approximately every 4 years.
     nSubsidy >>= halvings;
     return nSubsidy;
 }
@@ -2987,7 +2995,7 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
         return state.Invalid(false, REJECT_INVALID, "time-too-old", "block's timestamp is too early");
 
     // Check timestamp
-    if (block.GetBlockTime() > nAdjustedTime + 2 * 60 * 60)
+    if (block.GetBlockTime() > nAdjustedTime + 30 * 60)
         return state.Invalid(false, REJECT_INVALID, "time-too-new", "block timestamp too far in the future");
 
     // Reject outdated version blocks when 95% (75% on testnet) of the network has upgraded:
@@ -3621,7 +3629,7 @@ bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CCoinsView *coinsview,
 
     // Verify blocks in the best chain
     if (nCheckDepth <= 0)
-        // Litecoin: suffices until year 10214. Didn't x4 value due to integer wrap around and upstream compatibility.
+        // Centauri: suffices until year 10214. Didn't x4 value due to integer wrap around and upstream compatibility.
         nCheckDepth = std::numeric_limits<int>::max();
     if (nCheckDepth > chainActive.Height())
         nCheckDepth = chainActive.Height();

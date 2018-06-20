@@ -304,7 +304,7 @@ void CTxMemPool::UpdateForRemoveFromMempool(const setEntries &entriesToRemove, b
         // should be a bit faster.
         // However, if we happen to be in the middle of processing a reorg, then
         // the mempool can be in an inconsistent state.  In this case, the set
-        // of ancestors reachable via mapLinks will be the same as the set of 
+        // of ancestors reachable via mapLinks will be the same as the set of
         // ancestors whose packages include this transaction, because when we
         // add a new transaction to the mempool in addUnchecked(), we assume it
         // has no children, and in the case of a reorg where that assumption is
@@ -1073,6 +1073,22 @@ CFeeRate CTxMemPool::GetMinFee(size_t sizelimit) const {
     LOCK(cs);
     if (!blockSinceLastRollingFeeBump || rollingMinimumFeeRate == 0)
         return CFeeRate(rollingMinimumFeeRate);
+
+    // CTXTODO: allow free transactions?
+
+    // if (nBlockSize == 1)
+    // {
+    //     // Transactions under 10K are free
+    //     // (about 4500bc if made of 50bc inputs)
+    //     if (nBytes < 10000)
+    //         nMinFee = 0;
+    // }
+    // else
+    // {
+    //     // Free transaction area
+    //     if (nNewBlockSize < 27000)
+    //         nMinFee = 0;
+    // }
 
     int64_t time = GetTime();
     if (time > lastRollingFeeUpdate + 10) {
