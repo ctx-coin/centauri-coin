@@ -87,6 +87,9 @@ static void CheckBlockIndex(const Consensus::Params& consensusParams);
 
 /** Constant stuff for coinbase transactions we create: */
 CScript COINBASE_FLAGS;
+CScript DEVMARKETING_SCRIPT; // CTX
+CScript ACCEPTANCEPOINTS_SCRIPT;  // CTX
+CScript POSCOACHES_SCRIPT;  // CTX
 
 const std::string strMessageMagic = "Centauri Signed Message:\n";
 
@@ -3839,6 +3842,11 @@ bool LoadBlockIndex(const CChainParams& chainparams)
 bool InitBlockIndex(const CChainParams& chainparams)
 {
     LOCK(cs_main);
+
+	// CTX Scripts for init...
+	DEVMARKETING_SCRIPT << OP_DUP << OP_HASH160 << ParseHex(chainparams.GetConsensus().DevMarketingPubKey) << OP_EQUALVERIFY << OP_CHECKSIG; // CTX		
+	ACCEPTANCEPOINTS_SCRIPT << OP_DUP << OP_HASH160 << ParseHex(chainparams.GetConsensus().AcceptancePointsPubKey) << OP_EQUALVERIFY << OP_CHECKSIG; // CTX
+	POSCOACHES_SCRIPT << OP_DUP << OP_HASH160 << ParseHex(chainparams.GetConsensus().POSCoachesPubKey) << OP_EQUALVERIFY << OP_CHECKSIG; // CTX
 
     // Check whether we're already initialized
     if (chainActive.Genesis() != NULL)

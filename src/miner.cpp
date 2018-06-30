@@ -4,7 +4,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "miner.h"
-
+#include "base58.h"
 #include "amount.h"
 #include "chain.h"
 #include "chainparams.h"
@@ -180,14 +180,42 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     nLastBlockTx = nBlockTx;
     nLastBlockSize = nBlockSize;
     nLastBlockWeight = nBlockWeight;
-
+		
     // Create coinbase transaction.
+	int64_t BlockAmount = GetBlockSubsidy(pindexPrev->nHeight+1, chainparams.GetConsensus());
+    	int64_t DevMarketingFee = BlockAmount * 2.0 / 100;
+	int64_t AcceptancePointsFee = BlockAmount * 2.0 / 100;
+	int64_t POSCoachesFee = BlockAmount * 2.0 / 100;
+	int64_t nBlockReward = nFees + BlockAmount - DevMarketingFee - AcceptancePointsFee - POSCoachesFee;
+	
     CMutableTransaction coinbaseTx;
     coinbaseTx.vin.resize(1);
     coinbaseTx.vin[0].prevout.SetNull();
-    coinbaseTx.vout.resize(1);
-    coinbaseTx.vout[0].scriptPubKey = scriptPubKeyIn;
-    coinbaseTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
+    coinbaseTx.vout.resize(4);
+	
+	LogPrintf("BlockAmount: %u\n", BlockAmount);
+	LogPrintf("DevMarketingFee: %u\n", DevMarketingFee);
+	LogPrintf("AcceptancePointsFee: %u\n", AcceptancePointsFee);
+	LogPrintf("POSCoachesFee: %u\n", POSCoachesFee);
+	LogPrintf("nBlockReward: %u\n", nBlockReward);
+	LogPrintf("ChainMarketing: %u\n", chainparams.GetConsensus().DevMarketingPubKey);
+
+	coinbaseTx.vout[0].scriptPubKey = DEVMARKETING_SCRIPT;
+	coinbaseTx.vout[1].scriptPubKey = ACCEPTANCEPOINTS_SCRIPT;
+	coinbaseTx.vout[2].scriptPubKey = POSCOACHES_SCRIPT;
+	coinbaseTx.vout[3].scriptPubKey = scriptPubKeyIn;
+			
+	coinbaseTx.vout[0].nValue = DevMarketingFee;
+	coinbaseTx.vout[1].nValue = AcceptancePointsFee;
+	coinbaseTx.vout[2].nValue = POSCoachesFee;
+    	coinbaseTx.vout[3].nValue = nBlockReward;
+	
+	LogPrintf("vout[0]: %u\n", coinbaseTx.vout[0].nValue);
+	LogPrintf("vout[1]: %u\n", coinbaseTx.vout[1].nValue);
+	LogPrintf("vout[2]: %u\n", coinbaseTx.vout[2].nValue);
+	LogPrintf("vout[3]: %u\n", coinbaseTx.vout[3].nValue);
+	LogPrintf("Fee's: %u\n", nFees);
+	
     coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
     pblock->vtx[0] = MakeTransactionRef(std::move(coinbaseTx));
     pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus());
