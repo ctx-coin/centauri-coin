@@ -281,7 +281,8 @@ UniValue prioritisetransaction(const JSONRPCRequest& request)
 
     uint256 hash = ParseHashStr(request.params[0].get_str(), "txid");
     CAmount nAmount = request.params[2].get_int64();
-
+   
+    
     mempool.PrioritiseTransaction(hash, request.params[0].get_str(), request.params[1].get_real(), nAmount);
     return true;
 }
@@ -675,10 +676,10 @@ UniValue getblocktemplate(const JSONRPCRequest& request)
     result.push_back(Pair("previousblockhash", pblock->hashPrevBlock.GetHex()));
     result.push_back(Pair("transactions", transactions));
     result.push_back(Pair("coinbaseaux", aux));
-result.push_back(Pair("coinbasevalue", (int64_t)pblock->vtx[0]->vout[0].nValue + (int64_t)pblock->vtx[0]->vout[1].nValue + (int64_t)pblock->vtx[0]->vout[2].nValue + (int64_t)pblock->vtx[0]->vout[3].nValue)); // CTX
-result.push_back(Pair("devmarketingvalue", (int64_t)pblock->vtx[0]->vout[0].nValue)); // CTX
-result.push_back(Pair("acceptancepoints", (int64_t)pblock->vtx[0]->vout[1].nValue)); // CTX
-result.push_back(Pair("poscoachesvalue", (int64_t)pblock->vtx[0]->vout[2].nValue)); // CTX
+	result.push_back(Pair("coinbasevalue", (int64_t)pblock->vtx[0]->vout[0].nValue + (int64_t)pblock->vtx[0]->vout[1].nValue + (int64_t)pblock->vtx[0]->vout[2].nValue + (int64_t)pblock->vtx[0]->vout[3].nValue)); // CTX
+	result.push_back(Pair("devmarketingvalue", (int64_t)pblock->vtx[0]->vout[0].nValue)); // CTX
+	result.push_back(Pair("acceptancepoints", (int64_t)pblock->vtx[0]->vout[1].nValue)); // CTX
+	result.push_back(Pair("poscoachesvalue", (int64_t)pblock->vtx[0]->vout[2].nValue)); // CTX
     result.push_back(Pair("longpollid", chainActive.Tip()->GetBlockHash().GetHex() + i64tostr(nTransactionsUpdatedLast)));
     result.push_back(Pair("target", hashTarget.GetHex()));
     result.push_back(Pair("mintime", (int64_t)pindexPrev->GetMedianTimePast()+1));
