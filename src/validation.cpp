@@ -1174,7 +1174,8 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
         return 0;
 
     CAmount nSubsidy = 50 * COIN;
-
+    
+	//CTX Specs.
     // fast forward
     // amount: 10 000 000 coins
     // start: ~2018-Apr-21 11:00:00
@@ -1948,6 +1949,24 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                          error("ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)",
                                block.vtx[0]->GetValueOut(), blockReward),
                                REJECT_INVALID, "bad-cb-amount");
+    
+    // CTX - Protocoll
+
+    if (block.vtx[0].vout[1].scriptPubKey != ACCEPTANCEPOINTS_SCRIPT)
+        return state.DoS(100, error("ConnectBlock() : coinbase does not pay to the AcceptancePoints-Fee in the second output)"));
+        
+    if (block.vtx[0].vout[2].scriptPubKey != POSCOACHES_SCRIPT)
+        return state.DoS(100, error("ConnectBlock() : coinbase does not pay to the POS - Coaches - Fee in the thrid output)"));
+        
+    if (block.vtx[0].vout[2].scriptPubKey != DEVMARKETING_SCRIPT)
+        return state.DoS(100, error("ConnectBlock() : coinbase does not pay to the Developer and Marketing - Fee in the fourth output)"));
+        
+    int64_t FeesAmount = GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus()) * 2.5 / 100 *3;
+    
+    if (block.vtx[0].vout[1].nValue + block.vtx[0].vout[2].nValue block.vtx[0].vout[3].nValue < FeesAmount)
+		return state.DoS(100, error("ConnectBlock() : coinbase does not pay enough to the Fee's"));
+		                           
+                               
 
     if (!control.Wait())
         return state.DoS(100, false);
