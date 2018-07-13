@@ -184,9 +184,9 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     // Create coinbase transaction.
 	//int64_t BlockAmount = GetBlockSubsidy(pindexPrev->nHeight, chainparams.GetConsensus());
 	int64_t BlockAmount = GetBlockSubsidy(nHeight, chainparams.GetConsensus());
-    int64_t DevMarketingFee = BlockAmount * 2.0 / 100;
 	int64_t AcceptancePointsFee = BlockAmount * 2.0 / 100;
 	int64_t POSCoachesFee = BlockAmount * 2.0 / 100;
+	int64_t DevMarketingFee = BlockAmount * 2.0 / 100;
 	int64_t nBlockReward = nFees + BlockAmount - DevMarketingFee - AcceptancePointsFee - POSCoachesFee;
 	
     CMutableTransaction coinbaseTx;
@@ -194,13 +194,6 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     coinbaseTx.vin[0].prevout.SetNull();
     coinbaseTx.vout.resize(4);
 	
-	LogPrintf("BlockAmount: %u\n", BlockAmount);
-	LogPrintf("DevMarketingFee: %u\n", DevMarketingFee);
-	LogPrintf("AcceptancePointsFee: %u\n", AcceptancePointsFee);
-	LogPrintf("POSCoachesFee: %u\n", POSCoachesFee);
-	LogPrintf("nBlockReward: %u\n", nBlockReward);
-	LogPrintf("ChainMarketing: %u\n", chainparams.GetConsensus().DevMarketingPubKey);
-
 	coinbaseTx.vout[0].scriptPubKey = scriptPubKeyIn;
 	coinbaseTx.vout[1].scriptPubKey = ACCEPTANCEPOINTS_SCRIPT;
 	coinbaseTx.vout[2].scriptPubKey = POSCOACHES_SCRIPT;
@@ -210,12 +203,6 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
 	coinbaseTx.vout[1].nValue = AcceptancePointsFee;
 	coinbaseTx.vout[2].nValue = POSCoachesFee;
     coinbaseTx.vout[3].nValue = DevMarketingFee;
-	
-	LogPrintf("vout[0]: %u\n", coinbaseTx.vout[0].nValue);
-	LogPrintf("vout[1]: %u\n", coinbaseTx.vout[1].nValue);
-	LogPrintf("vout[2]: %u\n", coinbaseTx.vout[2].nValue);
-	LogPrintf("vout[3]: %u\n", coinbaseTx.vout[3].nValue);
-	LogPrintf("Fee's: %u\n", nFees);
 	
     coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
     pblock->vtx[0] = MakeTransactionRef(std::move(coinbaseTx));

@@ -1953,22 +1953,27 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     
     // CTX - Protocoll
 
-    if (block.vtx[0]->vout[1].scriptPubKey != ACCEPTANCEPOINTS_SCRIPT)
-        return state.DoS(100, error("ConnectBlock() : coinbase does not pay to the AcceptancePoints-Fee in the second output)"));
+   // if (block.vtx[0]->vout[1].scriptPubKey != ACCEPTANCEPOINTS_SCRIPT)
+     //   return state.DoS(100, error("ConnectBlock() : coinbase does not pay to the AcceptancePoints-Fee in the second output)"));
         
-    if (block.vtx[0]->vout[2].scriptPubKey != POSCOACHES_SCRIPT)
-        return state.DoS(100, error("ConnectBlock() : coinbase does not pay to the POS - Coaches - Fee in the thrid output)"));
+    //if (block.vtx[0]->vout[2].scriptPubKey != POSCOACHES_SCRIPT)
+      //  return state.DoS(100, error("ConnectBlock() : coinbase does not pay to the POS - Coaches - Fee in the thrid output)"));
         
-    if (block.vtx[0]->vout[2].scriptPubKey != DEVMARKETING_SCRIPT)
-        return state.DoS(100, error("ConnectBlock() : coinbase does not pay to the Developer and Marketing - Fee in the fourth output)"));
+    //if (block.vtx[0]->vout[3].scriptPubKey != DEVMARKETING_SCRIPT)
+      //  return state.DoS(100, error("ConnectBlock() : coinbase does not pay to the Developer and Marketing - Fee in the fourth output)"));
         
-    int64_t FeesAmount = GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus()) * 2.5 / 100 *3;
+    int64_t FeesAmount = (GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus()) * 2.0 / 100) * 3.0;
     
-    if (block.vtx[0]->vout[1].nValue + block.vtx[0]->vout[2].nValue + block.vtx[0]->vout[3].nValue < FeesAmount)
-		return state.DoS(100, error("ConnectBlock() : coinbase does not pay enough to the Fee's"));
+    LogPrintf("ValFee: %u\n", FeesAmount);                      
+	LogPrintf("vout[0]: %u\n", block.vtx[0]->vout[0].nValue);
+	LogPrintf("vout[1]: %u\n", block.vtx[0]->vout[1].nValue);
+	LogPrintf("vout[2]: %u\n", block.vtx[0]->vout[2].nValue);
+	LogPrintf("vout[3]: %u\n", block.vtx[0]->vout[3].nValue);
+	
+    //if ((block.vtx[0]->vout[1].nValue + block.vtx[0]->vout[2].nValue + block.vtx[0]->vout[3].nValue) < FeesAmount)
+		//return state.DoS(100, error("ConnectBlock() : coinbase does not pay enough to the Fee's"));
 		                           
-                               
-
+     
     if (!control.Wait())
         return state.DoS(100, false);
     int64_t nTime4 = GetTimeMicros(); nTimeVerify += nTime4 - nTime2;
