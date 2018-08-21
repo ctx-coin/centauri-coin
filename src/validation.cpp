@@ -1942,8 +1942,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     LogPrint("bench", "      - Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin) [%.2fs]\n", (unsigned)block.vtx.size(), 0.001 * (nTime3 - nTime2), 0.001 * (nTime3 - nTime2) / block.vtx.size(), nInputs <= 1 ? 0 : 0.001 * (nTime3 - nTime2) / (nInputs-1), nTimeConnect * 0.000001);
 
     CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus());
-    LogPrintf("blockReward: %u\n", blockReward);
-     LogPrintf("blockReward: %u\n", block.vtx[0]->GetValueOut());
+    
+    // LogPrintf("blockReward: %u\n", blockReward);
+    // LogPrintf("blockReward: %u\n", block.vtx[0]->GetValueOut());
      
     if (block.vtx[0]->GetValueOut() > blockReward)
         return state.DoS(100,
@@ -1951,25 +1952,31 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                block.vtx[0]->GetValueOut(), blockReward),
                                REJECT_INVALID, "bad-cb-amount");
     
-    // CTX - Protocoll
-   if (nHeight >= 450000) {
+     // CTX - Protocoll
+   if (pindex->nHeight >= 414910) {
 	   
-     if (block.vtx[0]->vout[1].scriptPubKey != ACCEPTANCEPOINTS_SCRIPT)
-     	return state.DoS(100, error("ConnectBlock() : coinbase does not pay to the AcceptancePoints-Fee in the second output)"));
+     if (block.vtx[0]->vout[2].scriptPubKey != ACCEPTANCEPOINTS_SCRIPT)
+     	return state.DoS(100, error("ConnectBlock() : coinbase does not pay to the AcceptancePoints-Fee in the thrid output)"));
         
-     if (block.vtx[0]->vout[2].scriptPubKey != POSCOACHES_SCRIPT)
-     	return state.DoS(100, error("ConnectBlock() : coinbase does not pay to the POS - Coaches - Fee in the thrid output)"));
+     if (block.vtx[0]->vout[1].scriptPubKey != POSCOACHES_SCRIPT)
+     	return state.DoS(100, error("ConnectBlock() : coinbase does not pay to the POS - Coaches - Fee in the second output)"));
         
-     if (block.vtx[0]->vout[3].scriptPubKey != DEVMARKETING_SCRIPT)
-     	return state.DoS(100, error("ConnectBlock() : coinbase does not pay to the Developer and Marketing - Fee in the fourth output)"));
+     if (block.vtx[0]->vout[0].scriptPubKey != DEVMARKETING_SCRIPT)
+     	return state.DoS(100, error("ConnectBlock() : coinbase does not pay to the Developer and Marketing - Fee in the first output)"));
         
-    	int64_t FeesAmount = (GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus()) * 2.0 / 100) * 3.0;
+    int64_t FeesAmount = (GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus()) * 2.0 / 100) * 3.0;
     
-    
-    if ((block.vtx[0]->vout[1].nValue + block.vtx[0]->vout[2].nValue + block.vtx[0]->vout[3].nValue) < FeesAmount)
+    if ((block.vtx[0]->vout[0].nValue + block.vtx[0]->vout[1].nValue + block.vtx[0]->vout[2].nValue) < FeesAmount)
 	return state.DoS(100, error("ConnectBlock() : coinbase does not pay enough to the Fees)"));
+	
+	// LogPrintf("ValFee: %u\n", FeesAmount);                      
+	// LogPrintf("vout[0]: %u\n", block.vtx[0]->vout[0].nValue);
+	// LogPrintf("vout[1]: %u\n", block.vtx[0]->vout[1].nValue);
+	// LogPrintf("vout[2]: %u\n", block.vtx[0]->vout[2].nValue);
+	// LogPrintf("vout[3]: %u\n", block.vtx[0]->vout[3].nValue);
 	   
-   }
+}
+		                           
      
     if (!control.Wait())
         return state.DoS(100, false);
