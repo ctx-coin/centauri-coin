@@ -1953,7 +1953,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                REJECT_INVALID, "bad-cb-amount");
     
      // CTX - Protocoll
-   if (pindex->nHeight >= 450500) {
+   if (pindex->nHeight >= 455000) {
 	   
      if (block.vtx[0]->vout[2].scriptPubKey != ACCEPTANCEPOINTS_SCRIPT)
      	return state.DoS(100, error("ConnectBlock() : coinbase does not pay to the AcceptancePoints-Fee in the thrid output)"));
