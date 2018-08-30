@@ -87,6 +87,9 @@ static void CheckBlockIndex(const Consensus::Params& consensusParams);
 
 /** Constant stuff for coinbase transactions we create: */
 CScript COINBASE_FLAGS;
+CScript DEVMARKETING_SCRIPT; // CTX
+CScript ACCEPTANCEPOINTS_SCRIPT;  // CTX
+CScript POSCOACHES_SCRIPT;  // CTX
 
 const std::string strMessageMagic = "Centauri Signed Message:\n";
 
@@ -1171,7 +1174,8 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
         return 0;
 
     CAmount nSubsidy = 50 * COIN;
-
+    
+	//CTX Specs.
     // fast forward
     // amount: 10 000 000 coins
     // start: ~2018-Apr-21 11:00:00
@@ -1938,12 +1942,42 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     LogPrint("bench", "      - Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin) [%.2fs]\n", (unsigned)block.vtx.size(), 0.001 * (nTime3 - nTime2), 0.001 * (nTime3 - nTime2) / block.vtx.size(), nInputs <= 1 ? 0 : 0.001 * (nTime3 - nTime2) / (nInputs-1), nTimeConnect * 0.000001);
 
     CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus());
+    
+    // LogPrintf("blockReward: %u\n", blockReward);
+    // LogPrintf("blockReward: %u\n", block.vtx[0]->GetValueOut());
+     
     if (block.vtx[0]->GetValueOut() > blockReward)
         return state.DoS(100,
                          error("ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)",
                                block.vtx[0]->GetValueOut(), blockReward),
                                REJECT_INVALID, "bad-cb-amount");
-
+    
+     // CTX - Protocoll
+   if (pindex->nHeight >= 460000) {
+	   
+     if (block.vtx[0]->vout[2].scriptPubKey != ACCEPTANCEPOINTS_SCRIPT)
+     	return state.DoS(100, error("ConnectBlock() : coinbase does not pay to the AcceptancePoints-Fee in the thrid output)"));
+        
+     if (block.vtx[0]->vout[1].scriptPubKey != POSCOACHES_SCRIPT)
+     	return state.DoS(100, error("ConnectBlock() : coinbase does not pay to the POS - Coaches - Fee in the second output)"));
+        
+     if (block.vtx[0]->vout[0].scriptPubKey != DEVMARKETING_SCRIPT)
+     	return state.DoS(100, error("ConnectBlock() : coinbase does not pay to the Developer and Marketing - Fee in the first output)"));
+        
+    int64_t FeesAmount = (GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus()) * 2.0 / 100) * 3.0;
+    
+    if ((block.vtx[0]->vout[0].nValue + block.vtx[0]->vout[1].nValue + block.vtx[0]->vout[2].nValue) < FeesAmount)
+	return state.DoS(100, error("ConnectBlock() : coinbase does not pay enough to the Fees)"));
+	
+	// LogPrintf("ValFee: %u\n", FeesAmount);                      
+	// LogPrintf("vout[0]: %u\n", block.vtx[0]->vout[0].nValue);
+	// LogPrintf("vout[1]: %u\n", block.vtx[0]->vout[1].nValue);
+	// LogPrintf("vout[2]: %u\n", block.vtx[0]->vout[2].nValue);
+	// LogPrintf("vout[3]: %u\n", block.vtx[0]->vout[3].nValue);
+	   
+}
+		                           
+     
     if (!control.Wait())
         return state.DoS(100, false);
     int64_t nTime4 = GetTimeMicros(); nTimeVerify += nTime4 - nTime2;
@@ -3839,6 +3873,13 @@ bool LoadBlockIndex(const CChainParams& chainparams)
 bool InitBlockIndex(const CChainParams& chainparams)
 {
     LOCK(cs_main);
+
+	// CTX Scripts for init...
+	DEVMARKETING_SCRIPT << OP_DUP << OP_HASH160 << ParseHex(chainparams.GetConsensus().DevMarketingPubKey) << OP_EQUALVERIFY << OP_CHECKSIG; // CTX		
+	ACCEPTANCEPOINTS_SCRIPT << OP_DUP << OP_HASH160 << ParseHex(chainparams.GetConsensus().AcceptancePointsPubKey) << OP_EQUALVERIFY << OP_CHECKSIG; // CTX
+	POSCOACHES_SCRIPT << OP_DUP << OP_HASH160 << ParseHex(chainparams.GetConsensus().POSCoachesPubKey) << OP_EQUALVERIFY << OP_CHECKSIG; // CTX
+
+
 
     // Check whether we're already initialized
     if (chainActive.Genesis() != NULL)

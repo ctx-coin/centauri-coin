@@ -76,6 +76,9 @@ public:
         consensus.BIP65Height = 335000;                                                                             // https://github.com/bitcoin/bips/blob/master/bip-0065.mediawiki
         consensus.BIP66Height = 335000;                                                                             // https://github.com/bitcoin/bips/blob/master/bip-0066.mediawiki
         consensus.powLimit = uint256S("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");          // CTX: pow limit is the same - ~uint256(0) >> 20
+		consensus.DevMarketingPubKey = "8dbe79a6b89a0d43f3e6f23d7de3ae6e8a1e9c7d"; // CTX - Developer and Marketing Fee : CVPN2YB2Yd1rTHr2hp6oUCXSsc4HZjZ92w
+		consensus.AcceptancePointsPubKey = "18942a9d29f520fb84125e28898efb3adf662a64"; // CTX - Acceptance Points Fee : CJhrHRyLz13SHc6KHb311YMm6u2BjhiYet
+		consensus.POSCoachesPubKey = "12ed7fa6852661fe6a844d25a170df5cf1aeadaa"; // CTX - POS Coaches Fee : CJByFBtqsZZTZSXwZU4hqvGDSRAKNrvuus
         consensus.nPowTargetTimespan = 4 * 60 * 60; // CTX: re-targeting every 4 hours
         consensus.nPowTargetSpacing = 2.5 * 60;
         consensus.fPowAllowMinDifficultyBlocks = false;
