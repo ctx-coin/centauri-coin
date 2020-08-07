@@ -76,9 +76,6 @@ public:
         consensus.BIP65Height = 335000;                                                                             // https://github.com/bitcoin/bips/blob/master/bip-0065.mediawiki
         consensus.BIP66Height = 335000;                                                                             // https://github.com/bitcoin/bips/blob/master/bip-0066.mediawiki
         consensus.powLimit = uint256S("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");          // CTX: pow limit is the same - ~uint256(0) >> 20
-		consensus.DevMarketingPubKey = "8dbe79a6b89a0d43f3e6f23d7de3ae6e8a1e9c7d"; // CTX - Developer and Marketing Fee : CVPN2YB2Yd1rTHr2hp6oUCXSsc4HZjZ92w
-		consensus.AcceptancePointsPubKey = "18942a9d29f520fb84125e28898efb3adf662a64"; // CTX - Acceptance Points Fee : CJhrHRyLz13SHc6KHb311YMm6u2BjhiYet
-		consensus.POSCoachesPubKey = "12ed7fa6852661fe6a844d25a170df5cf1aeadaa"; // CTX - POS Coaches Fee : CJByFBtqsZZTZSXwZU4hqvGDSRAKNrvuus
         consensus.nPowTargetTimespan = 4 * 60 * 60; // CTX: re-targeting every 4 hours
         consensus.nPowTargetSpacing = 2.5 * 60;
         consensus.fPowAllowMinDifficultyBlocks = false;
@@ -124,8 +121,10 @@ public:
         assert(genesis.hashMerkleRoot == uint256S("0x18c372fe354185169070e1c23188f3d028271d8445e1be02f50db9aa353ed056")); //CTX: genesis merkle root
 
         // Note that of those with the service bits flag, most only support a subset of possible options
-        vSeeds.push_back(CDNSSeedData("alpha-centauri", "seed.alpha-centauri.co"));
-        vSeeds.push_back(CDNSSeedData("ctx.nsfw", "seed.ctx.nsfw.systems"));
+        vSeeds.push_back(CDNSSeedData("seed.centauri-ctx", "seed.centauri-ctx.world"));
+        vSeeds.push_back(CDNSSeedData("api.centauri-ctx", "api.centauri-ctx.world"));
+	vSeeds.push_back(CDNSSeedData("pool.centauri-ctx", "pool.centauri-ctx.world"));
+
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,28); // CTX: Centauri addresses start with C
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,5);
